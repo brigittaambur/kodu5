@@ -18,6 +18,7 @@ lisaKorviNupud.forEach(lisaKorviNupp => {
             lisaArtikkel(toode); // selle funktsiooni loome allpool
             korv.push(toode);
             nupuOhjamine(lisaKorviNupp, toode); // selle funktsiooni loome allpool
+            arvutaSumma();
         }
     });
 });
@@ -38,6 +39,7 @@ function lisaArtikkel(toode) {
   `);
 
     lisaKorviJalus(); // selle funktsiooni lisame allpool
+    arvutaSumma();
 }
 
 //funktsioon nupu sündmusekuulutaja jaoks
@@ -60,12 +62,23 @@ function suurendaArtikkel(toode, korvArtikkelD) {
     korv.forEach(korvArtikkel => {
         if (korvArtikkel.nimi === toode.nimi) {
             korvArtikkelD.querySelector('.korv_artikkel_kogus').innerText = ++korvArtikkel.kogus;
-
         }
     });
+    arvutaSumma();
 }
 
 //Ülesanne 5.1: lisa funktsioon toodete hulga vähendamiseks.
+function decreaseItem(toode, korvArtikkelD, lisakorvinupp) {
+    korv.forEach(korvArtikkel => {
+        if (korvArtikkel.nimi === toode.nimi && korvArtikkel.kogus > 1) {
+            korvArtikkelD.querySelector('.korv_artikkel_kogus').innerText = --korvArtikkel.kogus;
+        }
+        else {
+            eemaldaArtikkel(toode, korvArtikkelD, lisakorvinupp);
+        }
+    });
+    arvutaSumma();
+}
 
 //toodete eemaldamine ostukorvist
 function eemaldaArtikkel(toode, korvArtikkelD, lisaKorviNupp) {
@@ -73,6 +86,7 @@ function eemaldaArtikkel(toode, korvArtikkelD, lisaKorviNupp) {
     korv = korv.filter(korvArtikkel => korvArtikkel.nimi !== toode.nimi);
     lisaKorviNupp.innerText = 'Lisa ostukorvi';
     lisaKorviNupp.disabled = false;
+    arvutaSumma();
     if (korv.length < 1) {
         document.querySelector('.korv-jalus').remove();
     }
@@ -88,7 +102,10 @@ function lisaKorviJalus() {
       </div>
     `);
         document.querySelector('[data-action="tyhjenda_korv"]').addEventListener('click', () => tuhjendaKorv());
-        document.querySelector('[data-action="kassa"]').addEventListener('click', () => kassa());
+        document.querySelector('[data-action="kassa"]').addEventListener('click', () => {
+            document.getElementById('ostuSooritus').style.display = 'block';
+            alustaTaimer(120, document.getElementById("time"));
+        });
     }
 }
 
@@ -101,26 +118,36 @@ function tuhjendaKorv() {
     document.querySelector('.korv-jalus').remove();
 
     lisaKorviNupud.forEach(lisaOstukorviNupp => {
-        lisaKorviNupp.innerText = 'Lisa ostukorvi';
-        lisaKorviNupp.disabled = false;
+        lisaOstukorviNupp.innerText = 'Lisa ostukorvi';
+        lisaOstukorviNupp.disabled = false;
     });
+
+    korv = [];
+    arvutaSumma();
 }
 
 
 //Ülesanne 5.2: lisa funktsioon, mis arvutab ostukorvi summa kokku.
+function arvutaSumma(toode, korvArtikkelD) {
+    let summa = 0;
+    korv.forEach(korvArtikkel => {
+        summa += korvArtikkel.hind * korvArtikkel.kogus;
+        });
+    document.querySelector('[data-action="kassa"]').innerText = `Maksma (${summa} €)`
+}
 
 
 //-------------------------2. osa Taimer ------------------------
 
 //taimer
-function alustaTaimer(kestvus, kuva) {
+function alustaTaimer(kestus, kuva) {
     let start = Date.now(),
         vahe,
         minutid,
         sekundid;
 
     function taimer() {
-        let vahe = kestvus - Math.floor((Date.now() - start) / 1000);
+        let vahe = kestus - Math.floor((Date.now() - start) / 1000);
 
         let minutid = Math.floor(vahe / 60);
         let sekundid = Math.floor(vahe % 60);
@@ -144,19 +171,30 @@ function alustaTaimer(kestvus, kuva) {
 
 };
 
-window.onload = function () {
+/* window.onload = function () {
     let taimeriAeg = 60 * 2,
         kuva = document.getElementById("time");
     alustaTaimer(taimeriAeg, kuva);
 };
+ */
 
 
 //-------------------------3. osa Tarne vorm ------------------------
+
+/* Ülesanne 5.3: täienda vormi sisendi kontrolli:
+- eesnime ja perenime väljal ei tohi olla numbreid;
+- telefoni väli ei tohi olla lühem kui 6 sümbolit ning peab sisaldama ainult numbreid;
+- üks raadionuppudest peab olema valitud;
+- lisa oma valikul üks lisaväli ning sellele kontroll. Märgi see nii HTML kui JavaScripti
+  koodis "minu kood" kommentaariga. */
+
 
 const form = document.querySelector("form");
 const eesnimi = document.getElementById("eesnimi");
 const perenimi = document.getElementById("perenimi");
 const kinnitus = document.getElementById("kinnitus");
+const telefon = document.getElementById("telefon");
+
 
 const errorMessage = document.getElementById("errorMessage");
 
@@ -166,19 +204,41 @@ form.addEventListener("submit", (e) => {
 
     if (eesnimi.value.trim() === "") {
         errors.push("Sisesta eesnimi")
+    } else if (/\d/.test(eesnimi.value)) {
+        errors.push("Eesnimes esineb number, sisestage uuesti")
     }
 
     if (perenimi.value.trim() === "") {
         errors.push("Sisesta perenimi")
+    } else if (/\d/.test(perenimi.value)) {
+        errors.push("Perenimes esineb number, sisestage uuesti")
+    }
+
+    if (telefon.value.trim() === "") {
+        errors.push("Sisesta telefon");
+    } else if (telefon.value.length < 6) {
+        errors.push("Telefoninumber ei saa olla lühem kui 6 numbrit");
+    } else if (!(/^\d+$/.test(telefon.value))) {
+        errors.push("Telefon tohib sisaldada vaid numbreid")
     }
 
     if (!kinnitus.checked) {
         errors.push("Palun nõustu tingimustega");
     }
 
+    const tarneLinn = document.getElementById("tarneAsukoht").value;
+    if (tarneLinn === "") {
+        errors.push("Vali tarne sihtkoht")
+    }
+
+    const raadionuppValitud = document.querySelector('input[name="tarne"]:checked');
+    if (!raadionuppValitud) {
+        errors.push("Üks tarneviisidest peab olema valitud");
+    }
+
     if (errors.length > 0) {
         e.preventDefault();
-        errorMessage.innerHTML = errors.join(', ');
+        errorMessage.innerHTML = errors.join('<br>');
     }
     else {
         errorMessage.innerHTML = "";
@@ -186,13 +246,5 @@ form.addEventListener("submit", (e) => {
     }
 
 })
-
-/* Ülesanne 5.3: täienda vormi sisendi kontrolli:
-- eesnime ja perenime väljal ei tohi olla numbreid;
-- telefoni väli ei tohi olla lühem kui 6 sümbolit ning peab sisaldama ainult numbreid;
-- üks raadionuppudest peab olema valitud;
-- lisa oma valikul üks lisaväli ning sellele kontroll. Märgi see nii HTML kui JavaScripti
-  koodis "minu kood" kommentaariga. */
-
 
 

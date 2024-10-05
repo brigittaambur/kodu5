@@ -40,8 +40,7 @@
 
         <!----------------Taimer--------------------->
         <section class="section">
-            <h2>Ostu sooritamiseks <span id="time"></span> </h2>
-
+            <h2 id="ostuSooritus" style="display: none">Ostu sooritamiseks <span id="time"></span> </h2>
         </section>
 
         <!----------------Tarne vorm--------------------->
@@ -75,10 +74,24 @@
                 </div>
 
                 <div class="form-control">
-                    <h4> Tarneviisid</h4>
-                    <label for="tarne1">Pakiautomaati<input type="radio" id="tarne1"></label>
+                    <h4> Tarne sihtkoht</h4>
                     <br>
-                    <label for="tarne2">Tulen ise järgi<input type="radio" id="tarne2"></label>
+                    <select id="tarneAsukoht" name="tarneAsukoht">
+                        <option disabled selected value>vali linn</option>
+                        <option value="tallinn">Tallinn</option>
+                        <option value="tartu">Tartu</option>
+                        <option value="pärnu">Pärnu</option>
+                        <option value="jõhvi">Jõhvi</option>
+                        <option value="kärdla">Kärdla</option>
+                    </select>
+                </div>
+                <br>
+
+                <div class="form-control">
+                    <h4> Tarneviisid</h4>
+                    <label for="tarne1">Pakiautomaati<input type="radio" id="tarne1" name="tarne"></label>
+                    <br>
+                    <label for="tarne2">Tulen ise järgi<input type="radio" id="tarne2" name="tarne"></label>
                 </div>
 
                 <div id="tehing"> <button id="btnsubmit">Kinnita ost</button>
