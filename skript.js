@@ -226,6 +226,7 @@ form.addEventListener("submit", (e) => {
         errors.push("Palun nõustu tingimustega");
     }
 
+    // Minu kood //
     const tarneLinn = document.getElementById("tarneAsukoht").value;
     if (tarneLinn === "") {
         errors.push("Vali tarne sihtkoht")
